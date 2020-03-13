@@ -1,0 +1,28 @@
+.pylintrc
+.vscode
+.DS_Store
+*.sqlite3
+media/
+*.pyc
+*.db
+*.pid
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+__pycache__
+*.py[cod]
+*$py.class
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+# Django stuff:
+*.log
+local_settings.py
+# pyenv
+.python-version
+# dotenv
+.env
+# django migrations
+migrations
+# virtual environment
+Env/
