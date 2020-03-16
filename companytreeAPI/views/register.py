@@ -68,6 +68,7 @@ def register_user(request):
         tasks=req_body['tasks'],
         phone=req_body['phone'],
         slack=req_body['slack'],
+        company_id=req_body['company_id'],
         is_admin=req_body['is_admin']
     )
 

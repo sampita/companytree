@@ -16,6 +16,7 @@ class Employee(models.Model):
     tasks = models.CharField(max_length=500)
     phone = models.CharField(max_length=30)
     slack = models.CharField(max_length=30)
+    company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True)
     is_admin = models.BooleanField()
 
     # def __str__(self):
