@@ -4,14 +4,14 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.views.decorators.csrf import csrf_exempt
-from virtualmagicians.models import Customer
+from companytreeAPI.models import Employee
 
 
 @csrf_exempt
 def login_user(request):
     '''Handles the authentication of a user
     Method arguments:
-      request -- The full HTTP request object
+        request -- The full HTTP request object
     '''
 
     req_body = json.loads(request.body.decode())
@@ -41,7 +41,7 @@ def login_user(request):
 def register_user(request):
     '''Handles the creation of a new user for authentication
     Method arguments:
-      request -- The full HTTP request object
+        request -- The full HTTP request object
     '''
 
     # Load the JSON string of the request body into a dict
@@ -57,13 +57,22 @@ def register_user(request):
         last_name=req_body['last_name']
     )
 
-    customer = Customer.objects.create(
+    employee = Employee.objects.create(
         user=new_user,
-        address=req_body["address"]
+        department_id=req_body['department_id'],
+        supervisor_id=req_body['supervisor_id'],
+        position=req_body['position'],
+        location=req_body['location'],
+        bio=req_body['bio'],
+        image_url=req_body['image_url'],
+        tasks=req_body['tasks'],
+        phone=req_body['phone'],
+        slack=req_body['slack'],
+        is_admin=req_body['is_admin']
     )
 
     # Commit the user to the database by saving it
-    customer.save()
+    employee.save()
 
     # Use the REST Framework's token generator on the new user account
     token = Token.objects.create(user=new_user)

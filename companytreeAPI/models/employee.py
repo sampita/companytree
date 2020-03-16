@@ -11,11 +11,12 @@ class Employee(models.Model):
     supervisor = models.ForeignKey('Employee', on_delete=models.DO_NOTHING, null=True)
     position = models.CharField(max_length=50)
     location = models.CharField(max_length=50)
-    bio = models.CharField(max_length=300)
-    imageURL = models.CharField(max_length=300)
-    tasks = models.CharField(max_length=100)
+    bio = models.TextField(max_length=500)
+    image_url = models.URLField(max_length=1000)
+    tasks = models.CharField(max_length=500)
     phone = models.CharField(max_length=30)
-    isAdmin = models.BooleanField()
+    slack = models.CharField(max_length=30)
+    is_admin = models.BooleanField()
 
     # def __str__(self):
     #     return f'{self.first_name} {self.last_name}'
