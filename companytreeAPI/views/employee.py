@@ -6,11 +6,12 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
 from companytreeAPI.models import Employee
+from companytreeAPI.serializers.user import UserSerializer
+from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-# from django.views.decorators.csrf import csrf_exempt
 
 
 class EmployeeSerializer(serializers.HyperlinkedModelSerializer):
@@ -18,14 +19,17 @@ class EmployeeSerializer(serializers.HyperlinkedModelSerializer):
     Arguments:
         serializers.HyperlinkedModelSerializer
     """
+    
+    user = UserSerializer(many=False)
+    
     class Meta:
         model = Employee
         url = serializers.HyperlinkedIdentityField(
             view_name='employee',
             lookup_field='id'
         )
-        fields = ('id', 'user_id', 'department_id', 'supervisor_id', 'position', 'location', 'bio', 'image_url', 'tasks', 'phone', 'slack', 'company_id', 'is_admin',)
-        depth = 2
+        fields = ('id', 'user', 'department_id', 'supervisor_id', 'position', 'location', 'bio', 'image_url', 'tasks', 'phone', 'slack', 'company_id', 'is_admin',)
+        # depth = 2
 
 class Employees(ViewSet):
 
