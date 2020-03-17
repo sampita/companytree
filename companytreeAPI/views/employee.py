@@ -114,8 +114,11 @@ class Employees(ViewSet):
             Response -- 200, 404, or 500 status code
         """
         try:
-            employee = Employee.objects.get(pk=pk)
-            employee.delete()
+            #Find out if current user has admin access
+            current_user = Employee.objects.get(pk=request.auth.user.employee.id)
+            if current_user.is_admin == True:
+                employee = Employee.objects.get(pk=pk)
+                employee.delete()
 
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
