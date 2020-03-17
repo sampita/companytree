@@ -14,7 +14,7 @@ from rest_framework.authtoken.models import Token
 
 
 class EmployeeSerializer(serializers.HyperlinkedModelSerializer):
-    """JSON serializer for products
+    """JSON serializer for employees
     Arguments:
         serializers.HyperlinkedModelSerializer
     """
@@ -34,7 +34,7 @@ class Employees(ViewSet):
     def create(self, request):
         """Handle POST operations
         Returns:
-            Response -- JSON serialized Products instance
+            Response -- JSON serialized Employees instance
         """
         #First, find out if current user has admin access
         current_user = Employee.objects.get(pk=request.auth.user.employee.id)
@@ -84,7 +84,7 @@ class Employees(ViewSet):
     def list(self, request):
         """Handle GET requests for all employees
         Returns:
-            Response -- JSON serialized product instance
+            Response -- JSON serialized employee instance
         """
         limit = self.request.query_params.get('limit')
         search = self.request.query_params.get('search')
@@ -108,8 +108,32 @@ class Employees(ViewSet):
             )
         return Response(serializer.data)
     
+    def update(self, request, pk=None):
+        """Handle PUT requests for an employee
+        Returns:
+            Response -- Empty body with 204 status code
+        """
+        #First, find out if current user has admin access
+        current_user = Employee.objects.get(pk=request.auth.user.employee.id)
+        if current_user.is_admin == True:
+            employee_to_update = Employee.objects.get(pk=pk)
+            employee_to_update.department_id = request.data["department_id"]
+            employee_to_update.supervisor_id = request.data["supervisor_id"]
+            employee_to_update.position = request.data["position"]
+            employee_to_update.location = request.data["location"]
+            employee_to_update.bio = request.data["bio"]
+            employee_to_update.image_url = request.data["image_url"]
+            employee_to_update.tasks = request.data["tasks"]
+            employee_to_update.phone = request.data["phone"]
+            employee_to_update.slack = request.data["slack"]
+            employee_to_update.company_id = request.data["company_id"]
+            employee_to_update.is_admin = request.data["is_admin"]
+            employee_to_update.save()
+
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
+    
     def destroy(self, request, pk=None):
-        """Handle DELETE requests for a single park area
+        """Handle DELETE requests for a single employee
         Returns:
             Response -- 200, 404, or 500 status code
         """
