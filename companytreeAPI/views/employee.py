@@ -1,4 +1,5 @@
 """View module for handling employee requests"""
+import json
 from django.http import HttpResponseServerError
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -7,6 +8,8 @@ from rest_framework import status
 from companytreeAPI.models import Employee
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 # from django.views.decorators.csrf import csrf_exempt
 
 
@@ -21,31 +24,50 @@ class EmployeeSerializer(serializers.HyperlinkedModelSerializer):
             view_name='employee',
             lookup_field='id'
         )
-        fields = ('id', 'department_id', 'supervisor_id', 'position', 'location', 'bio', 'image_url', 'tasks', 'phone', 'slack', 'company_id', 'is_admin')
+        fields = ('id', 'user_id', 'department_id', 'supervisor_id', 'position', 'location', 'bio', 'image_url', 'tasks', 'phone', 'slack', 'company_id', 'is_admin',)
+        depth = 2
 
 class Employees(ViewSet):
 
     """Company Employees"""
 
-    # def create(self, request):
-    #     """Handle POST operations
-    #     Returns:
-    #         Response -- JSON serialized Products instance
-    #     """
-    #     newEmployee = Employee()
-    #     newEmployee = request.data["name"]
-    #     newEmployee.department_id = request.auth.user.customer.id
-    #     newEmployee.price = request.data["price"]
-    #     newEmployee.description = request.data["description"]
-    #     newEmployee.quantity = request.data["quantity"]
-    #     newEmployee.location = request.data["location"]
-    #     newEmployee.image_path = request.data["image_path"]
-    #     newEmployee.product_type_id = request.data["product_type_id"]
-    #     newEmployee.save()
+    def create(self, request):
+        """Handle POST operations
+        Returns:
+            Response -- JSON serialized Products instance
+        """
+        #First, find out if current user has admin access
+        current_user = Employee.objects.get(pk=request.auth.user.employee.id)
+        if current_user.is_admin == True:
+            # Load the JSON string of the request body into a dict
+            req_body = json.loads(request.body.decode())
+            
+            new_user = User.objects.create_user(
+            username=req_body['username'],
+            email=req_body['email'],
+            password=req_body['password'],
+            first_name=req_body['first_name'],
+            last_name=req_body['last_name']
+            )
+            
+            new_employee = Employee()
+            new_employee.user = new_user
+            new_employee.department_id = request.data["department_id"]
+            new_employee.supervisor_id = request.data["supervisor_id"]
+            new_employee.position = request.data["position"]
+            new_employee.location = request.data["location"]
+            new_employee.bio = request.data["bio"]
+            new_employee.image_url = request.data["image_url"]
+            new_employee.tasks = request.data["tasks"]
+            new_employee.phone = request.data["phone"]
+            new_employee.slack = request.data["slack"]
+            new_employee.company_id = request.data["company_id"]
+            new_employee.is_admin = request.data["is_admin"]
+            new_employee.save()
 
-    #     serializer = ProductSerializer(newproduct, context={'request': request})
+            serializer = EmployeeSerializer(new_employee, context={'request': request})
 
-    #     return Response(serializer.data)
+        return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
         """Handle GET requests for single employee
@@ -53,7 +75,7 @@ class Employees(ViewSet):
             Response -- JSON serialized employee instance
         """
         try:
-            employee = Employee.objects.get(pk=pk)
+            employee = Employee.objects.get(pk=pk, company_id=request.auth.user.employee.company_id)
             serializer = EmployeeSerializer(employee, context={'request': request})
             return Response(serializer.data)
         except Exception as ex:
