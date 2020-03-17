@@ -2,10 +2,10 @@
 from django.urls import include, path
 from rest_framework import routers
 from rest_framework.authtoken.views import obtain_auth_token
-from companytreeAPI.views import register_user, login_user
+from companytreeAPI.views import register_user, login_user, Employees
 
 router = routers.DefaultRouter(trailing_slash=False)
-# router.register(r'customers', Customers, 'customer')
+router.register(r'employees', Employees, 'employee')
 # router.register(r'products', Products, 'product')
 # router.register(r'users', Users, 'user')
 # router.register(r'orders', Orders, 'order')
