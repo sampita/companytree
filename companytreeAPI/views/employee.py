@@ -100,14 +100,27 @@ class Employees(ViewSet):
         # filter for the 'myEmployees' view
         else:
             employees = Employee.objects.filter(company_id=request.auth.user.employee.company_id)
-        # else:
-        #     employees = Employee.objects.all()
 
         serializer = EmployeeSerializer(
-                    employees,
-                    many=True,
-                    context={'request': request}
-                )
-
-
+            employees,
+            many=True,
+            context={'request': request}
+            )
         return Response(serializer.data)
+    
+    def destroy(self, request, pk=None):
+        """Handle DELETE requests for a single park area
+        Returns:
+            Response -- 200, 404, or 500 status code
+        """
+        try:
+            employee = Employee.objects.get(pk=pk)
+            employee.delete()
+
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+        except Employee.DoesNotExist as ex:
+            return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            return Response({'message': ex.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
