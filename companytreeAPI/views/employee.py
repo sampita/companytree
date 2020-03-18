@@ -10,7 +10,6 @@ from companytreeAPI.serializers.user import UserSerializer
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
 
