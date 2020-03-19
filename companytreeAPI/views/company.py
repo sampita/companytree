@@ -23,7 +23,7 @@ class CompanySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Company
         url = serializers.HyperlinkedIdentityField(
-            view_name='employee',
+            view_name='company',
             lookup_field='id'
         )
         fields = ('id', 'name',)
@@ -32,6 +32,7 @@ class Companies(ViewSet):
 
     """Companies"""
 
+    @csrf_exempt
     def create(self, request):
         """Handle POST operations
         Returns:

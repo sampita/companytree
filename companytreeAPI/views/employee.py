@@ -133,7 +133,7 @@ class Employees(ViewSet):
             employee_to_update.is_admin = request.data["is_admin"]
             employee_to_update.save()
 
-        return Response({}, status=status.HTTP_204_NO_CONTENT)
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
     
     def destroy(self, request, pk=None):
         """Handle DELETE requests for a single employee

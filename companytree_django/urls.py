@@ -2,12 +2,12 @@
 from django.urls import include, path
 from rest_framework import routers
 from rest_framework.authtoken.views import obtain_auth_token
-from companytreeAPI.views import register_user, login_user, Employees, Companies
+from companytreeAPI.views import register_user, login_user, Employees, Companies, Departments
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'employees', Employees, 'employee')
 router.register(r'companies', Companies, 'company')
-# router.register(r'departments', Departments, 'department')
+router.register(r'departments', Departments, 'department')
 
 urlpatterns = [
     path('', include(router.urls)),
