@@ -38,14 +38,12 @@ class Companies(ViewSet):
         Returns:
             Response -- JSON serialized Company instance
         """
-        #First, find out if current user has admin access
-        current_user = Employee.objects.get(pk=request.auth.user.employee.id)
-        if current_user.is_admin == True:
-            new_company = Company()
-            new_company.name = request.data["name"]
-            new_company.save()
+        
+        new_company = Company()
+        new_company.name = request.data["name"]
+        new_company.save()
 
-            serializer = CompanySerializer(new_company, context={'request': request})
+        serializer = CompanySerializer(new_company, context={'request': request})
 
         return Response(serializer.data)
 

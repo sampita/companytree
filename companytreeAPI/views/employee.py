@@ -64,7 +64,7 @@ class Employees(ViewSet):
             new_employee.tasks = request.data["tasks"]
             new_employee.phone = request.data["phone"]
             new_employee.slack = request.data["slack"]
-            new_employee.company_id = request.data["company_id"]
+            new_employee.company_id = request.auth.user.employee.company_id
             new_employee.is_admin = request.data["is_admin"]
             new_employee.save()
 
