@@ -1,5 +1,7 @@
 """View module for handling employee requests"""
 import json
+import sqlite3
+from .connection import Connection
 from django.http import HttpResponseServerError
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -83,33 +85,73 @@ class Employees(ViewSet):
             return Response(serializer.data)
         except Exception as ex:
             return HttpResponseServerError(ex)
-
+        
+        
     def list(self, request):
-        """Handle GET requests for all employees
-        Returns:
-            Response -- JSON serialized employee instance
-        """
-        limit = self.request.query_params.get('limit')
-        search = self.request.query_params.get('search')
-        category = self.request.query_params.get('category', None)
-        user = self.request.query_params.get('self')
+        if request.method == 'GET':
+            with sqlite3.connect(Connection.db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                db_cursor = conn.cursor()
+
+                db_cursor.execute(f"SELECT * FROM companytreeAPI_employee as etable JOIN companytreeAPI_department as dtable ON etable.department_id=dtable.id JOIN auth_user as atable ON atable.id=etable.user_id AND company_id={request.auth.user.employee.company_id};")
+                
+                all_employees = []
+                dataset = db_cursor.fetchall()
+                
+                for row in dataset:
+                    employee = Employee()
+                    employee = {
+                        "id": row['id'],
+                        "position": row['position'],
+                        "location": row['location'],
+                        "bio": row['bio'],
+                         "image_url": row['image_url'],
+                        "phone": row['phone'],
+                        "is_admin": row['is_admin'],
+                        "department_id": row['department_id'],
+                        "user_id": row['user_id'],
+                        "slack": row['slack'],
+                        "company_id": row['company_id'],
+                        "tasks": row['tasks'],
+                        "supervisor_id": row['supervisor_id'],
+                        "name": row['name'],
+                        "colorHex": row['colorHex'],
+                        "username": row['username'],
+                        "first_name": row['first_name'],
+                        "last_name": row['last_name'],
+                        "email": row['email'],
+                    }
+                    all_employees.append(employee)
+
+        context = {
+            'all_employees': all_employees
+        }
+        res = json.dumps(all_employees)
+        return Response(res, status=status.HTTP_200_OK)
+        
+        
+    # def list(self, request):
+    #     """Handle GET requests for all employees
+    #     Returns:
+    #         Response -- JSON serialized employee instance
+    #     """
 
 
-        # filter for the 'home' view
-        if limit:
-            employees = Employee.objects.order_by('-created_at')[0:int(limit)]
-        elif search:
-            employees = Employee.objects.filter(name__contains=search)
-        # filter for the 'myEmployees' view
-        else:
-            employees = Employee.objects.filter(company_id=request.auth.user.employee.company_id)
+    #     # filter for the 'home' view
+    #     if limit:
+    #         employees = Employee.objects.order_by('-created_at')[0:int(limit)]
+    #     elif search:
+    #         employees = Employee.objects.filter(name__contains=search)
+    #     # filter for the 'myEmployees' view
+    #     else:
+    #         employees = Employee.objects.filter(company_id=request.auth.user.employee.company_id)
 
-        serializer = EmployeeSerializer(
-            employees,
-            many=True,
-            context={'request': request}
-            )
-        return Response(serializer.data)
+    #     serializer = EmployeeSerializer(
+    #         employees,
+    #         many=True,
+    #         context={'request': request}
+    #         )
+    #     return Response(serializer.data)
     
     def update(self, request, pk=None):
         """Handle PUT requests for an employee
@@ -129,7 +171,7 @@ class Employees(ViewSet):
             employee_to_update.tasks = request.data["tasks"]
             employee_to_update.phone = request.data["phone"]
             employee_to_update.slack = request.data["slack"]
-            employee_to_update.company_id = request.data["company_id"]
+            employee_to_update.company_id = request.auth.user.employee.company.id
             employee_to_update.is_admin = request.data["is_admin"]
             employee_to_update.save()
 
